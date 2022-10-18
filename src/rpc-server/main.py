@@ -1,35 +1,35 @@
-import signal, sys
+import signal
+import sys
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 
-from functions.string_length import string_length
-from functions.string_reverse import string_reverse
+from functions.import_airbnb_data import import_airbnb_data
+
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
-   rpc_paths = ('/RPC2',)
-
-with SimpleXMLRPCServer(('localhost', 9000), requestHandler=RequestHandler) as server:
-   server.register_introspection_functions()
+    rpc_paths = ('/RPC2',)
 
 
-   def signal_handler(signum, frame):
-      print("received signal")
-      server.server_close()
+with SimpleXMLRPCServer(('localhost', 9000,), requestHandler=RequestHandler) as server:
+    server.register_introspection_functions()
 
-      # perform clean up, etc. here...
+    def signal_handler(signum, frame):
+        print("received signal")
+        server.server_close()
 
-      print("exiting, gracefully")
-      sys.exit(0)
+        # perform clean up, etc. here...
 
-   # signals
-   signal.signal(signal.SIGTERM, signal_handler)
-   signal.signal(signal.SIGHUP, signal_handler)
-   signal.signal(signal.SIGINT, signal_handler)
+        print("exiting, gracefully")
+        sys.exit(0)
 
-   # register both functions
-   server.register_function(string_reverse)
-   server.register_function(string_length)
+    # signals
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGHUP, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
-   # start the server
-   print("Starting the RPC Server...")
-   server.serve_forever()
+    # register both functions
+    server.register_function(import_airbnb_data)
+
+    # start the server
+    print("Starting the RPC Server...")
+    server.serve_forever()
