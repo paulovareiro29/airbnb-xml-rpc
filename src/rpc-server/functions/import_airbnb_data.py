@@ -1,6 +1,9 @@
 import csv
 import os
 
+from lxml import etree
+from xml.sax.saxutils import escape
+
 
 def import_airbnb_data(file):
     temp_csv = "_temp.csv"
@@ -31,6 +34,7 @@ def import_airbnb_data(file):
 class AirbnbParser:
     def __init__(self):
         self.temp = "_temp.csv"
+        self.schema = etree.XMLSchema(etree.parse("./schemas/airbnb.xsd"))
 
     def parse(self, file):
         csv_file = csv.reader(file)
@@ -47,10 +51,19 @@ class AirbnbParser:
 
     def parseToFile(self, file, destination):
         xml_file = open(destination, "w")
-        xml_file.write(self.parse(file))
+        xml = self.parse(file)
+
+        if self.validate(xml) == False:
+            xml_file.close()
+            return
+
+        xml_file.write(xml)
         xml_file.close()
 
     def row_to_xml(self, row):
+        for i, item in enumerate(row):
+            row[i] = escape(item)
+
         return """\n    <airbnb id="%s">
         <name>%s</name>
         <host id="%s">
@@ -66,3 +79,8 @@ class AirbnbParser:
             <country>%s</country>
         </location>
     </airbnb>""" % (row[0], row[1], row[2], row[4], row[3], row[5], row[6], row[7], row[8], row[9])
+
+    def validate(self, xml: str):
+        xml_doc = etree.fromstring(xml)
+        result = self.schema.validate(xml_doc)
+        return result
