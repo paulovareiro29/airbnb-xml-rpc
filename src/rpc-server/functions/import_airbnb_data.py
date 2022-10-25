@@ -1,6 +1,8 @@
 import csv
 import os
 
+from db.database import Database
+
 from lxml import etree
 from xml.sax.saxutils import escape
 
@@ -19,12 +21,25 @@ def import_airbnb_data(file):
         handler = open(temp_csv)
 
         parser = AirbnbParser()
-        parser.parseToFile(handler, "airbnb.xml")
+        xml = parser.parse(handler)
+
+        database = Database()
+        database.connect()
+        database.insert(
+            "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", ("airbnb", xml))
+
+        result = database.select("SELECT * FROM imported_documents")
+
+        print("Docs list:")
+        for doc in result:
+            print(f" > {doc[0]}, {doc[1]}")
+
+        database.disconnect()
 
         handler.close()
         os.remove(temp_csv)
 
-    except OSError:
+    except (OSError, Exception) as error:
         os.remove(temp_csv)
         return False
 

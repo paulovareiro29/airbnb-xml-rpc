@@ -1,6 +1,6 @@
 import xmlrpc.client
 
-print("connecting to server...")
+print("Connecting to server...")
 server = xmlrpc.client.ServerProxy('http://0.0.0.0:9000')
 
 
