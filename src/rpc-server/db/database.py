@@ -1,13 +1,13 @@
 import psycopg2
 
-''' connection = None
+''' conn = None
 cursor = None
  '''
 
 
 class Database:
     def __init__(self):
-        self.connection = None
+        self.conn = None
         self.cursor = None
         self.user = "is"
         self.password = "is"
@@ -16,44 +16,53 @@ class Database:
         self.database = "is"
 
     def connect(self):
-        self.connection = psycopg2.connect(user=self.user,
-                                           password=self.password,
-                                           host=self.host,
-                                           port=self.port,
-                                           database=self.database)
+        if self.conn is None:
+            try:
+                self.conn = psycopg2.connect(user=self.user,
+                                             password=self.password,
+                                             host=self.host,
+                                             port=self.port,
+                                             database=self.database)
+            except psycopg2.DatabaseError as e:
+                raise e
 
     def disconnect(self):
-        if self.connection:
-            self.connection.close()
+        if self.conn:
+            self.conn.close()
 
     def insert(self, sql, values):
-        try:
-            cursor = self.connection.cursor()
+        with self.conn.cursor() as cursor:
             cursor.execute(query=sql, vars=values)
-            return cursor
+            self.conn.commit()
+            cursor.close()
+            return True
 
-        except (Exception, psycopg2.Error) as error:
-            return Exception(error)
+    def selectAll(self, query):
+        self.connect()
+        with self.conn.cursor() as cursor:
+            cursor.execute(query)
+            result = [row for row in cursor.fetchall()]
+            cursor.close()
+            return result
 
-    def select(self, sql):
-        try:
-            cursor = self.connection.cursor()
-            cursor.execute(sql)
-            return cursor
-
-        except (Exception, psycopg2.Error) as error:
-            return Exception(error)
+    def selectOne(self, query):
+        self.connect()
+        with self.conn.cursor() as cursor:
+            cursor.execute(query)
+            result = cursor.fetchone()
+            cursor.close()
+            return result
 
 
 ''' 
 try:
-    connection = psycopg2.connect(user="is",
+    conn = psycopg2.connect(user="is",
                                   password="is",
                                   host="localhost",
                                   port="5432",
                                   database="is")
 
-    cursor = connection.cursor()
+    cursor = conn.cursor()
     cursor.execute("SELECT * FROM teachers")
 
     print("Teachers list:")
@@ -64,7 +73,7 @@ except (Exception, psycopg2.Error) as error:
     print("Failed to fetch data", error)
 
 finally:
-    if connection:
+    if conn:
         cursor.close()
-        connection.close()
+        conn.close()
  '''

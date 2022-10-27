@@ -25,14 +25,11 @@ def import_airbnb_data(file):
 
         database = Database()
         database.connect()
-        database.insert(
+        result = database.insert(
             "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", ("airbnb", xml))
 
-        result = database.select("SELECT * FROM imported_documents")
-
-        print("Docs list:")
-        for doc in result:
-            print(f" > {doc[0]}, {doc[1]}")
+        if result:
+            print("New XML file added to database!")
 
         database.disconnect()
 
@@ -40,6 +37,7 @@ def import_airbnb_data(file):
         os.remove(temp_csv)
 
     except (OSError, Exception) as error:
+        print(error)
         os.remove(temp_csv)
         return False
 
