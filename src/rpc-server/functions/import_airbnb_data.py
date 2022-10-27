@@ -7,12 +7,12 @@ from lxml import etree
 from xml.sax.saxutils import escape
 
 
-def import_airbnb_data(file):
+def import_airbnb_data(filename, data):
     temp_csv = "_temp.csv"
 
     try:
         handler = open(temp_csv, "wb")
-        handler.write(file.data)
+        handler.write(data.data)
         handler.close()
     except OSError:
         return False
@@ -24,24 +24,30 @@ def import_airbnb_data(file):
         xml = parser.parse(handler)
 
         database = Database()
-        database.connect()
-        result = database.insert(
-            "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", ("airbnb", xml))
 
-        if result:
-            print("New XML file added to database!")
+        try:
+            database.connect()
 
-        database.disconnect()
+            database.insert(
+                "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", (filename, xml))
+            print("File imported to database!")
 
-        handler.close()
-        os.remove(temp_csv)
+            database.disconnect()
+            handler.close()
+            os.remove(temp_csv)
+            return True
+        except Exception as error:
+            print(f"Error importing file!: {error}")
+
+            database.disconnect()
+            handler.close()
+            os.remove(temp_csv)
+            return False
 
     except (OSError, Exception) as error:
         print(error)
         os.remove(temp_csv)
         return False
-
-    return True
 
 
 class AirbnbParser:

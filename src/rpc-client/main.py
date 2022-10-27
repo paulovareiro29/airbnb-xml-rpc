@@ -12,13 +12,18 @@ print("Connected!\n")
 
 
 def importFile():
-    print("Sending file..")
-    filename = "airbnb-nyc-data.csv"
+    # airbnb-nyc-data.csv
+    filename = input("Insert filename: ")
 
-    with open(filename, "rb") as file:
-        server.import_airbnb_data(xmlrpc.client.Binary(file.read()))
-        file.close()
-        print("File sent")
+    try:
+        with open(filename, "rb") as file:
+            print("Importing file..")
+            server.import_airbnb_data(
+                filename, xmlrpc.client.Binary(file.read()))
+            file.close()
+            print("File sent")
+    except FileNotFoundError as _:
+        print("File not found!")
 
 
 def handleExit():

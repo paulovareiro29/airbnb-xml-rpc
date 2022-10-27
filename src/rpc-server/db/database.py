@@ -1,10 +1,5 @@
 import psycopg2
 
-''' conn = None
-cursor = None
- '''
-
-
 class Database:
     def __init__(self):
         self.conn = None
@@ -31,11 +26,14 @@ class Database:
             self.conn.close()
 
     def insert(self, sql, values):
-        with self.conn.cursor() as cursor:
-            cursor.execute(query=sql, vars=values)
-            self.conn.commit()
-            cursor.close()
-            return True
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute(query=sql, vars=values)
+                self.conn.commit()
+                cursor.close()
+                return True
+        except psycopg2.Error as ex:
+            raise ex
 
     def selectAll(self, query):
         self.connect()
@@ -52,28 +50,3 @@ class Database:
             result = cursor.fetchone()
             cursor.close()
             return result
-
-
-''' 
-try:
-    conn = psycopg2.connect(user="is",
-                                  password="is",
-                                  host="localhost",
-                                  port="5432",
-                                  database="is")
-
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM teachers")
-
-    print("Teachers list:")
-    for teacher in cursor:
-        print(f" > {teacher[0]}, from {teacher[1]}")
-
-except (Exception, psycopg2.Error) as error:
-    print("Failed to fetch data", error)
-
-finally:
-    if conn:
-        cursor.close()
-        conn.close()
- '''
