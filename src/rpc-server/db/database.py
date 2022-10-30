@@ -1,5 +1,6 @@
 import psycopg2
 
+
 class Database:
     def __init__(self):
         self.conn = None
@@ -19,7 +20,7 @@ class Database:
                                              port=self.port,
                                              database=self.database)
             except psycopg2.DatabaseError as e:
-                raise e
+                raise Exception("Error connecting to database")
 
     def disconnect(self):
         if self.conn:

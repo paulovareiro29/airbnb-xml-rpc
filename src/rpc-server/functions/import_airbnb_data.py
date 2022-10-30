@@ -1,3 +1,4 @@
+import psycopg2
 import csv
 import os
 
@@ -15,7 +16,7 @@ def import_airbnb_data(filename, data):
         handler.write(data.data)
         handler.close()
     except OSError:
-        return False
+        raise Exception("Server error!")
 
     try:
         handler = open(temp_csv)
@@ -24,30 +25,31 @@ def import_airbnb_data(filename, data):
         xml = parser.parse(handler)
 
         database = Database()
-
-        try:
-            database.connect()
-
-            database.insert(
-                "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", (filename, xml))
-            print("File imported to database!")
-
-            database.disconnect()
-            handler.close()
-            os.remove(temp_csv)
-            return True
-        except Exception as error:
-            print(f"Error importing file!: {error}")
-
-            database.disconnect()
-            handler.close()
-            os.remove(temp_csv)
-            return False
-
-    except (OSError, Exception) as error:
-        print(error)
+    except (OSError, Exception) as _:
         os.remove(temp_csv)
-        return False
+        raise Exception("Server error!")
+
+    try:
+        database.connect()
+    except Exception as _:
+        handler.close()
+        os.remove(temp_csv)
+        raise Exception("Failed to connect to database!")
+
+    try:
+        database.insert(
+            "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", (filename, xml))
+
+        print("File imported to database!")
+        return True
+    except psycopg2.IntegrityError as _:
+        raise Exception("Filename already exists on database!")
+    except psycopg2.Error as _:
+        raise Exception("Server error!")
+    finally:
+        database.disconnect()
+        handler.close()
+        os.remove(temp_csv)
 
 
 class AirbnbParser:
