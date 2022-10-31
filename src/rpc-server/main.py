@@ -3,7 +3,7 @@ import sys
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 
-from functions.import_airbnb_data import import_airbnb_data
+import functions.airbnb as airbnb
 
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
@@ -14,7 +14,7 @@ with SimpleXMLRPCServer(('localhost', 9000,), requestHandler=RequestHandler) as 
     server.register_introspection_functions()
 
     def signal_handler(signum, frame):
-        print("received signal")
+        print("\nreceived signal")
         server.server_close()
 
         # perform clean up, etc. here...
@@ -28,7 +28,9 @@ with SimpleXMLRPCServer(('localhost', 9000,), requestHandler=RequestHandler) as 
     signal.signal(signal.SIGINT, signal_handler)
 
     # register both functions
-    server.register_function(import_airbnb_data)
+    server.register_function(airbnb.insert)
+    server.register_function(airbnb.delete)
+    server.register_function(airbnb.index)
 
     # start the server
     print("Starting the RPC Server...")

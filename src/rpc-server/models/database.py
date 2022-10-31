@@ -27,6 +27,7 @@ class Database:
             self.conn.close()
 
     def insert(self, sql, values):
+        self.connect()
         try:
             with self.conn.cursor() as cursor:
                 cursor.execute(query=sql, vars=values)
@@ -49,5 +50,16 @@ class Database:
         with self.conn.cursor() as cursor:
             cursor.execute(query)
             result = cursor.fetchone()
+            cursor.close()
+            return result
+
+    def softdelete(self, table, options):
+        self.connect()
+        with self.conn.cursor() as cursor:
+            print(table)
+            cursor.execute(
+                f"UPDATE {table} SET deleted_on = now() WHERE {options}")
+            result = cursor.rowcount
+            self.conn.commit()
             cursor.close()
             return result
