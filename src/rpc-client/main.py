@@ -66,7 +66,15 @@ def deleteDocument():
 
 
 def handleExit(signum=None, frame=None):
+    clear()
     sys.exit(0)
+
+
+def filterBy():
+    ''' field = input("Select field: ")
+    value = input("Select Value: ") '''
+
+    server.filterAirbnbBy("host/name[. = 'Madaline']", "value")
 
 
 signal.signal(signal.SIGTERM, handleExit)
@@ -78,6 +86,7 @@ menu_options = {
     "1": ("List all Documents", listDocuments),
     "2": ("Import Document", importDocument),
     "3": ("Delete Document", deleteDocument),
+    "4": ("Filter by", filterBy),
     "0": ("Exit", handleExit)
 }
 

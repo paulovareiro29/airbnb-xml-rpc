@@ -4,6 +4,7 @@ from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 
 import functions.airbnb as airbnb
+import functions.queries as queries
 
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
@@ -31,6 +32,7 @@ with SimpleXMLRPCServer(('localhost', 9000,), requestHandler=RequestHandler) as 
     server.register_function(airbnb.insert)
     server.register_function(airbnb.delete)
     server.register_function(airbnb.index)
+    server.register_function(queries.filterAirbnbBy)
 
     # start the server
     print("Starting the RPC Server...")
