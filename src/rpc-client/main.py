@@ -70,11 +70,33 @@ def handleExit(signum=None, frame=None):
     sys.exit(0)
 
 
-def filterBy():
-    ''' field = input("Select field: ")
-    value = input("Select Value: ") '''
+def fetchAirbnbs():
+    results = server.fetchAirbnbs()
+    for item in results:
+        print(item)
 
-    server.filterAirbnbBy("host/name[. = 'Madaline']", "value")
+
+def fetchAreas():
+    results = server.fetchAreas()
+    for item in results:
+        print(item)
+
+
+def countAirbnbs():
+    result = server.countAirbnbs()
+    print(result)
+
+
+def fetchByArea():
+    availableAreas = server.fetchAreas()
+    print("Available Areas:")
+    for item in availableAreas:
+        print(item[1])
+
+    area = input("\nInput the area: ")
+
+    result = server.fetchByArea(area)
+    print(result)
 
 
 signal.signal(signal.SIGTERM, handleExit)
@@ -86,7 +108,10 @@ menu_options = {
     "1": ("List all Documents", listDocuments),
     "2": ("Import Document", importDocument),
     "3": ("Delete Document", deleteDocument),
-    "4": ("Filter by", filterBy),
+    "4": ("Fetch all airbnbs", fetchAirbnbs),
+    "5": ("Fetch all areas", fetchAreas),
+    "6": ("Count airbnbs", countAirbnbs),
+    "7": ("Fetch By Area", fetchByArea),
     "0": ("Exit", handleExit)
 }
 

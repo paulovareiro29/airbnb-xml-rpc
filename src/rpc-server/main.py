@@ -1,5 +1,6 @@
 import signal
 import sys
+import os
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 
@@ -23,6 +24,9 @@ with SimpleXMLRPCServer(('localhost', 9000,), requestHandler=RequestHandler) as 
         print("exiting, gracefully")
         sys.exit(0)
 
+    os.system("clear")
+    print("Starting..")
+
     # signals
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGHUP, signal_handler)
@@ -32,8 +36,11 @@ with SimpleXMLRPCServer(('localhost', 9000,), requestHandler=RequestHandler) as 
     server.register_function(airbnb.insert)
     server.register_function(airbnb.delete)
     server.register_function(airbnb.index)
-    server.register_function(queries.filterAirbnbBy)
+    server.register_function(queries.fetchAirbnbs)
+    server.register_function(queries.fetchAreas)
+    server.register_function(queries.countAirbnbs)
+    server.register_function(queries.fetchByArea)
 
     # start the server
-    print("Starting the RPC Server...")
+    print("RPC Server has started!")
     server.serve_forever()
