@@ -32,27 +32,33 @@ def insert(filename, data):
     temp_csv = "_temp.csv"
 
     try:
-        handler = open(temp_csv, "wb")
-        handler.write(data.data)
-        handler.close()
+        file = open(temp_csv, "wb")
+        file.write(data.data)
+        file.close()
     except OSError:
         raise Fault(1, "Server error!")
 
     try:
-        handler = open(temp_csv)
+        file = open(temp_csv)
 
-        parser = AirbnbParser()
-        xml = parser.parse(handler)
+        parser = Parser()
+        xml = parser.parse(file)
 
         database = Database()
     except (OSError, Exception) as _:
         os.remove(temp_csv)
+        print(_)
         raise Fault(1, "Server error!")
+
+    if not parser.validate(xml):
+        file.close()
+        os.remove(temp_csv)
+        raise Fault(3, "Generated XML is not valid!")
 
     try:
         database.connect()
     except Exception as _:
-        handler.close()
+        file.close()
         os.remove(temp_csv)
         raise Fault(2, "Failed to connect to database!")
 
@@ -66,26 +72,39 @@ def insert(filename, data):
         raise Fault(1, "Server error!")
     finally:
         database.disconnect()
-        handler.close()
+        file.close()
         os.remove(temp_csv)
 
 
-class AirbnbParser:
+class Parser:
     def __init__(self):
-        self.temp = "_temp.csv"
         self.schema = etree.XMLSchema(etree.parse("./schemas/airbnb.xsd"))
 
     def parse(self, file):
-        csv_file = csv.reader(file)
+        reader = csv.reader(file)
 
-        string = '<?xml version="1.0" ?>\n<airbnbs>'
-        for row in csv_file:
-            ''' Verification to remove the first row with the headers '''
-            if row[0] == "id":
-                continue
-            string += self.row_to_xml(row)
+        neighbourAreas = self.uniqueAreas(file)
+
+        string = '<?xml version="1.0" ?>\n<root>'
+
+        # Neighbourhood Areas
+        string += '\n<areas>\n'
+        for index, group in enumerate(neighbourAreas):
+            string += f"""\t<area id="{index}" name="{group}" />\n"""
+        string += '</areas>'
+
+        # Airbnbs
+        string += '\n<airbnbs>'
+        next(reader)
+        for row in reader:
+            for i, item in enumerate(row):
+                row[i] = escape(item)
+            string += self.toXML(row, neighbourAreas.index(row[5]))
 
         string += '\n</airbnbs>'
+        string += '\n</root>'
+
+        file.seek(0)
         return string
 
     def parseToFile(self, file, destination):
@@ -99,10 +118,7 @@ class AirbnbParser:
         xml_file.write(xml)
         xml_file.close()
 
-    def row_to_xml(self, row):
-        for i, item in enumerate(row):
-            row[i] = escape(item)
-
+    def toXML(self, row, area):
         data = {
             "id": row[0],
             "name": row[1],
@@ -114,17 +130,16 @@ class AirbnbParser:
             "address": {
                 "house_number": "",
                 "road": "",
-                "city": "",
-                "country": "",
+                "neighbourhood": row[6],
+                "area": area,
                 "coordinates": {
                     "latitude": row[7],
                     "longitude": row[8]
                 }
             }
-
         }
 
-        return f"""\n    <airbnb id="{data['id']}">
+        return f"""\n\t<airbnb id="{data['id']}">
                             <name>{data['name']}</name>
                             <host id="{data['host']['id']}">
                                 <name>{data['host']['name']}</name>
@@ -133,8 +148,8 @@ class AirbnbParser:
                             <address>
                                 <house_number>{data['address']['house_number']}</house_number>
                                 <road>{data['address']['road']}</road>
-                                <city>{data['address']['city']}</city>
-                                <country>{data['address']['country']}</country>
+                                <neighbourhood>{data['address']['neighbourhood']}</neighbourhood>
+                                <area ref="{data['address']['area']}" />
                                 <coordinates>
                                     <latitude>{data['address']['coordinates']['latitude']}</latitude>
                                     <longitude>{data['address']['coordinates']['longitude']}</longitude>
@@ -143,6 +158,22 @@ class AirbnbParser:
                         </airbnb>"""
 
     def validate(self, xml: str):
-        xml_doc = etree.fromstring(xml)
-        result = self.schema.validate(xml_doc)
-        return result
+        try:
+            xml_doc = etree.fromstring(xml)
+            result = self.schema.validate(xml_doc)
+            return result
+        except:
+            return False
+
+    def uniqueAreas(self, file):
+        reader = csv.reader(file)
+
+        array = []
+        next(reader)
+        for row in reader:
+            area = escape(row[5])
+            if area not in array:
+                array.append(area)
+
+        file.seek(0)
+        return array
