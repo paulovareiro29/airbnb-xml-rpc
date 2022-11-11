@@ -43,9 +43,8 @@ def insert(filename, data):
         file = open(temp_csv)
 
         parser = Parser()
-        xml = ET.XML(parser.parse(file))
-        ET.indent(xml)
-        xml = ET.tostring(xml, encoding="unicode")
+        parser.parseToFile(file, "file.xml")
+        xml = parser.parse(file)
 
         database = Database()
     except (OSError, Exception) as _:
@@ -115,7 +114,10 @@ class Parser:
         string += '\n</root>'
 
         file.seek(0)
-        return string
+
+        xml = ET.XML(string)
+        ET.indent(xml, space="\t")
+        return ET.tostring(xml, encoding="unicode")
 
     def parseToFile(self, file, destination):
         xml_file = open(destination, "w")
