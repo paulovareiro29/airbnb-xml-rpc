@@ -35,6 +35,17 @@ def fetchAreas():
     return formatSimpleResult(results)
 
 
+def fetchTypes():
+    """Returns all the types in each file"""
+    database = Database()
+
+    results = database.selectAll(
+        "SELECT file_name, (xpath('//types/type/@name', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+
+    database.disconnect()
+    return formatSimpleResult(results)
+
+
 def countAirbnbs():
     """Returns the number of airbnbs per file in database"""
     database = Database()
@@ -47,11 +58,22 @@ def countAirbnbs():
 
 
 def fetchByArea(area):
-    """Returns all the areas in each file"""
+    """Returns all airbnbs by area in each file"""
     database = Database()
 
     results = database.selectAll(
         f"SELECT file_name, (xpath('//airbnbs/airbnb[address/area[@ref=//areas/area[@name=\"{area}\"]/@id]]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+
+    database.disconnect()
+    return formatSimpleResult(results)
+
+
+def fetchByType(type):
+    """Returns all the airbnbs by type in each file"""
+    database = Database()
+
+    results = database.selectAll(
+        f"SELECT file_name, (xpath('//airbnbs/airbnb[type[@ref=//types/type[@name=\"{type}\"]/@id]]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
     return formatSimpleResult(results)

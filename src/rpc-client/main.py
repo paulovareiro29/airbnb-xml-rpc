@@ -82,6 +82,12 @@ def fetchAreas():
         print(item)
 
 
+def fetchTypes():
+    results = server.fetchTypes()
+    for item in results:
+        print(item)
+
+
 def countAirbnbs():
     result = server.countAirbnbs()
     print(result)
@@ -99,6 +105,18 @@ def fetchByArea():
     print(result)
 
 
+def fetchByType():
+    availableTypes = server.fetchTypes()
+    print("Available Types:")
+    for item in availableTypes:
+        print(item[1])
+
+    type = input("\nInput the type: ")
+
+    result = server.fetchByType(type)
+    print(result)
+
+
 signal.signal(signal.SIGTERM, handleExit)
 signal.signal(signal.SIGHUP, handleExit)
 signal.signal(signal.SIGINT, handleExit)
@@ -109,9 +127,11 @@ menu_options = {
     "2": ("Import Document", importDocument),
     "3": ("Delete Document", deleteDocument),
     "4": ("Fetch all airbnbs", fetchAirbnbs),
-    "5": ("Fetch all areas", fetchAreas),
-    "6": ("Count airbnbs", countAirbnbs),
+    "5": ("Fetch areas", fetchAreas),
+    "6": ("Fetch types", fetchTypes),
     "7": ("Fetch By Area", fetchByArea),
+    "8": ("Fetch By Type", fetchByType),
+    "9": ("Count airbnbs", countAirbnbs),
     "0": ("Exit", handleExit)
 }
 

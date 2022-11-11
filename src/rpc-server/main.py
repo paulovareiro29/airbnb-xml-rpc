@@ -38,8 +38,10 @@ with SimpleXMLRPCServer(('localhost', 9000,), requestHandler=RequestHandler) as 
     server.register_function(airbnb.index)
     server.register_function(queries.fetchAirbnbs)
     server.register_function(queries.fetchAreas)
+    server.register_function(queries.fetchTypes)
     server.register_function(queries.countAirbnbs)
     server.register_function(queries.fetchByArea)
+    server.register_function(queries.fetchByType)
 
     # start the server
     print("RPC Server has started!")

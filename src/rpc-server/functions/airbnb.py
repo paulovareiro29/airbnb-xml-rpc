@@ -5,6 +5,7 @@ import os
 
 from models.database import Database
 from lxml import etree
+import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 
 
@@ -42,12 +43,13 @@ def insert(filename, data):
         file = open(temp_csv)
 
         parser = Parser()
-        xml = parser.parse(file)
+        xml = ET.XML(parser.parse(file))
+        ET.indent(xml)
+        xml = ET.tostring(xml, encoding="unicode")
 
         database = Database()
     except (OSError, Exception) as _:
         os.remove(temp_csv)
-        print(_)
         raise Fault(1, "Server error!")
 
     if not parser.validate(xml):
@@ -83,15 +85,22 @@ class Parser:
     def parse(self, file):
         reader = csv.reader(file)
 
-        neighbourAreas = self.uniqueAreas(file)
+        areas = self.uniqueAreas(file)
+        types = self.uniqueTypes(file)
 
         string = '<?xml version="1.0" ?>\n<root>'
 
         # Neighbourhood Areas
         string += '\n<areas>\n'
-        for index, group in enumerate(neighbourAreas):
-            string += f"""\t<area id="{index}" name="{group}" />\n"""
+        for i, area in enumerate(areas):
+            string += f"""\t<area id="{i}" name="{area}" />\n"""
         string += '</areas>'
+
+        # Airbnb Types
+        string += '\n<types>\n'
+        for i, type in enumerate(types):
+            string += f"""\t<type id="{i}" name="{type}" />\n"""
+        string += '</types>'
 
         # Airbnbs
         string += '\n<airbnbs>'
@@ -99,7 +108,8 @@ class Parser:
         for row in reader:
             for i, item in enumerate(row):
                 row[i] = escape(item)
-            string += self.toXML(row, neighbourAreas.index(row[5]))
+            string += self.toXML(row,
+                                 types.index(row[13]), areas.index(row[5]))
 
         string += '\n</airbnbs>'
         string += '\n</root>'
@@ -111,14 +121,15 @@ class Parser:
         xml_file = open(destination, "w")
         xml = self.parse(file)
 
-        if self.validate(xml) == False:
-            xml_file.close()
-            return
-
         xml_file.write(xml)
         xml_file.close()
 
-    def toXML(self, row, area):
+    def toXML(self, row, type, area):
+
+        price = row[15].strip().replace("$", "").replace(",", "")
+        if not price:
+            price = 0
+
         data = {
             "id": row[0],
             "name": row[1],
@@ -136,7 +147,9 @@ class Parser:
                     "latitude": row[7],
                     "longitude": row[8]
                 }
-            }
+            },
+            "price": price,
+            "type": type
         }
 
         return f"""\n\t<airbnb id="{data['id']}">
@@ -155,9 +168,14 @@ class Parser:
                                     <longitude>{data['address']['coordinates']['longitude']}</longitude>
                                 </coordinates>
                             </address>
+                            <price>{data['price']}</price>
+                            <type ref="{data['type']}" />
                         </airbnb>"""
 
     def validate(self, xml: str):
+        if xml is None:
+            return False
+
         try:
             xml_doc = etree.fromstring(xml)
             result = self.schema.validate(xml_doc)
@@ -174,6 +192,19 @@ class Parser:
             area = escape(row[5])
             if area not in array:
                 array.append(area)
+
+        file.seek(0)
+        return array
+
+    def uniqueTypes(self, file):
+        reader = csv.reader(file)
+
+        array = []
+        next(reader)
+        for row in reader:
+            type = escape(row[13])
+            if type not in array:
+                array.append(type)
 
         file.seek(0)
         return array

@@ -1,71 +1,99 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xs:element name="root">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="areas">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="area" maxOccurs="unbounded" minOccurs="1">
-                                <xs:complexType>
-                                    <xs:attribute type="xs:byte" name="id" use="optional"/>
-                                    <xs:attribute type="xs:string" name="name" use="optional"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="airbnbs">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="airbnb" maxOccurs="unbounded" minOccurs="1">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element type="xs:string" name="name"/>
-                                        <xs:element name="host">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element type="xs:string" name="name"/>
-                                                    <xs:element type="xs:string" name="verified"/>
-                                                </xs:sequence>
-                                                <xs:attribute type="xs:long" name="id" use="optional"/>
-                                            </xs:complexType>
-                                        </xs:element>
-                                        <xs:element name="address">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element type="xs:string" name="house_number"/>
-                                                    <xs:element type="xs:string" name="road"/>
-                                                    <xs:element type="xs:string" name="neighbourhood"/>
-                                                    <xs:element name="area">
-                                                        <xs:complexType>
-                                                            <xs:simpleContent>
-                                                                <xs:extension base="xs:string">
-                                                                    <xs:attribute type="xs:byte" name="ref" use="optional"/>
-                                                                </xs:extension>
-                                                            </xs:simpleContent>
-                                                        </xs:complexType>
-                                                    </xs:element>
-                                                    <xs:element name="coordinates">
-                                                        <xs:complexType>
-                                                            <xs:sequence>
-                                                                <xs:element type="xs:float" name="latitude"/>
-                                                                <xs:element type="xs:float" name="longitude"/>
-                                                            </xs:sequence>
-                                                        </xs:complexType>
-                                                    </xs:element>
-                                                </xs:sequence>
-                                            </xs:complexType>
-                                        </xs:element>
-                                    </xs:sequence>
-                                    <xs:attribute type="xs:int" name="id" use="optional"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element ref="areas"/>
+                <xs:element ref="types"/>
+                <xs:element ref="airbnbs"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:element name="areas">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="area"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="types">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="type"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="airbnbs">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="airbnb"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="airbnb">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="name"/>
+                <xs:element ref="host"/>
+                <xs:element ref="address"/>
+                <xs:element ref="price"/>
+                <xs:element ref="type"/>
+            </xs:sequence>
+            <xs:attribute name="id" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="host">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="name"/>
+                <xs:element ref="verified"/>
+            </xs:sequence>
+            <xs:attribute name="id" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="verified" type="xs:string"/>
+    <xs:element name="address">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="house_number"/>
+                <xs:element ref="road"/>
+                <xs:element ref="neighbourhood"/>
+                <xs:element ref="area"/>
+                <xs:element ref="coordinates"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="house_number">
+        <xs:complexType/>
+    </xs:element>
+    <xs:element name="road">
+        <xs:complexType/>
+    </xs:element>
+    <xs:element name="neighbourhood" type="xs:string"/>
+    <xs:element name="coordinates">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="latitude"/>
+                <xs:element ref="longitude"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="latitude" type="xs:string"/>
+    <xs:element name="longitude" type="xs:string"/>
+    <xs:element name="price" type="xs:integer"/>
+    <xs:element name="area">
+        <xs:complexType>
+            <xs:attribute name="id" type="xs:integer"/>
+            <xs:attribute name="name"/>
+            <xs:attribute name="ref" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="type">
+        <xs:complexType>
+            <xs:attribute name="id" type="xs:integer"/>
+            <xs:attribute name="name"/>
+            <xs:attribute name="ref" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="name" type="xs:string"/>
 </xs:schema>

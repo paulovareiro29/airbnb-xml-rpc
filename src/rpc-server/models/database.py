@@ -56,7 +56,6 @@ class Database:
     def softdelete(self, table, options):
         self.connect()
         with self.conn.cursor() as cursor:
-            print(table)
             cursor.execute(
                 f"UPDATE {table} SET deleted_on = now() WHERE {options}")
             result = cursor.rowcount
