@@ -85,6 +85,8 @@
         <xs:complexType>
             <xs:attribute name="id" type="xs:integer"/>
             <xs:attribute name="name"/>
+            <xs:attribute name="lat"/>
+            <xs:attribute name="lon"/>
             <xs:attribute name="ref" type="xs:integer"/>
         </xs:complexType>
     </xs:element>

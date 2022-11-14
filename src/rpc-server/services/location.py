@@ -1,24 +1,16 @@
-from models.xpath import safeGetChildValue
 from lxml import etree
 import urllib.request as request
 
 
-def fetchAddress(lat, lon):
+def fetchCenterPoint(query):
     try:
-        with request.urlopen(f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}") as response:
+        safeQuery = query.replace(' ', '+')
+        with request.urlopen(f"https://nominatim.openstreetmap.org/search?q={safeQuery}&format=xml") as response:
             xml = etree.fromstring(response.read())
 
-            addressparts = xml.xpath("//addressparts")
-            return {
-                "house_number": safeGetChildValue(
-                    addressparts[0], "house_number", ""),
-                "road": safeGetChildValue(
-                    addressparts[0], "road", ""),
-                "city": safeGetChildValue(
-                    addressparts[0], "city", ""),
-                "contry": safeGetChildValue(
-                    addressparts[0], "house_number", "")
-            }
+            lat = xml.xpath("/searchresults/place[1]/@lat")
+            lon = xml.xpath("/searchresults/place[1]/@lon")
 
-    except Exception as err:
-        return None
+            return (lat[0], lon[0])
+    except:
+        return ("", "")

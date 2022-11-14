@@ -7,6 +7,7 @@ from models.database import Database
 from lxml import etree
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
+from services.location import fetchCenterPoint
 
 
 def index():
@@ -43,7 +44,7 @@ def insert(filename, data):
         file = open(temp_csv)
 
         parser = Parser()
-        parser.parseToFile(file, "file.xml")
+        ''' parser.parseToFile(file, "file.xml") '''
         xml = parser.parse(file)
 
         database = Database()
@@ -64,8 +65,8 @@ def insert(filename, data):
         raise Fault(2, "Failed to connect to database!")
 
     try:
-        database.insert(
-            "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", (filename, xml))
+        ''' database.insert(
+            "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", (filename, xml)) '''
         return True
     except psycopg2.IntegrityError as _:
         raise Fault(3, "Filename already exists on database!")
@@ -92,7 +93,8 @@ class Parser:
         # Neighbourhood Areas
         string += '\n<areas>\n'
         for i, area in enumerate(areas):
-            string += f"""\t<area id="{i}" name="{area}" />\n"""
+            center = fetchCenterPoint(area)
+            string += f"""\t<area id="{i}" name="{area}" lat="{center[0]}" lon="{center[1]}"/>\n"""
         string += '</areas>'
 
         # Airbnb Types
