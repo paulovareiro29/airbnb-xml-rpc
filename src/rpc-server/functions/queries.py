@@ -1,7 +1,5 @@
 from models.database import Database
 
-# TODO
-
 
 def formatSimpleResult(result):
     array = []
@@ -57,23 +55,45 @@ def countAirbnbs():
     return formatSimpleResult(results)
 
 
-def fetchByArea(area):
-    """Returns all airbnbs by area in each file"""
+def countByArea(area):
+    """Returns how many airbnbs exists by area in each file"""
     database = Database()
 
     results = database.selectAll(
-        f"SELECT file_name, (xpath('//airbnbs/airbnb[address/area[@ref=//areas/area[@name=\"{area}\"]/@id]]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        f"SELECT file_name, (xpath('count(//airbnbs/airbnb/address/area[@ref=/root/areas/area[@name=\"{area}\"]/@id])', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
     return formatSimpleResult(results)
 
 
-def fetchByType(type):
-    """Returns all the airbnbs by type in each file"""
+def countByType(type):
+    """Returns how many airbnbs exists by type in each file"""
     database = Database()
 
     results = database.selectAll(
-        f"SELECT file_name, (xpath('//airbnbs/airbnb[type[@ref=//types/type[@name=\"{type}\"]/@id]]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        f"SELECT file_name, (xpath('count(//airbnbs/airbnb/type[@ref=/root/types/type[@name=\"{type}\"]/@id])', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+
+    database.disconnect()
+    return formatSimpleResult(results)
+
+
+def fetchByPriceLowerThen(price):
+    """Returns all the airbnbs which price is lower then"""
+    database = Database()
+
+    results = database.selectAll(
+        f"SELECT file_name, (xpath('//airbnbs/airbnb[price < {price}]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+
+    database.disconnect()
+    return formatSimpleResult(results)
+
+
+def fetchByPriceHigherThen(price):
+    """Returns all the airbnbs which price is higher then"""
+    database = Database()
+
+    results = database.selectAll(
+        f"SELECT file_name, (xpath('//airbnbs/airbnb[price > {price}]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
     return formatSimpleResult(results)

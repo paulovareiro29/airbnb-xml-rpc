@@ -93,7 +93,7 @@ def countAirbnbs():
     print(result)
 
 
-def fetchByArea():
+def countByArea():
     availableAreas = server.fetchAreas()
     print("Available Areas:")
     for item in availableAreas:
@@ -101,11 +101,11 @@ def fetchByArea():
 
     area = input("\nInput the area: ")
 
-    result = server.fetchByArea(area)
+    result = server.countByArea(area)
     print(result)
 
 
-def fetchByType():
+def countByType():
     availableTypes = server.fetchTypes()
     print("Available Types:")
     for item in availableTypes:
@@ -113,7 +113,24 @@ def fetchByType():
 
     type = input("\nInput the type: ")
 
-    result = server.fetchByType(type)
+    result = server.countByType(type)
+    print(result)
+
+
+def fetchByPrice():
+    highOrLow = 0
+    while highOrLow != '1' and highOrLow != '2':
+        highOrLow = input("1: Higher then\n2: Lower then\nOption:")
+        if highOrLow != '1' and highOrLow != '2':
+            print("Invalid option")
+
+    if highOrLow == '1':
+        price = input("Higher then: ")
+        result = server.fetchByPriceHigherThen(price)
+    else:
+        price = input("Lower then:")
+        result = server.fetchByPriceLowerThen(price)
+
     print(result)
 
 
@@ -129,9 +146,10 @@ menu_options = {
     "4": ("Fetch all airbnbs", fetchAirbnbs),
     "5": ("Fetch areas", fetchAreas),
     "6": ("Fetch types", fetchTypes),
-    "7": ("Fetch By Area", fetchByArea),
-    "8": ("Fetch By Type", fetchByType),
+    "7": ("Count By Area", countByArea),
+    "8": ("Count By Type", countByType),
     "9": ("Count airbnbs", countAirbnbs),
+    "10": ("Fetch by price", fetchByPrice),
     "0": ("Exit", handleExit)
 }
 
