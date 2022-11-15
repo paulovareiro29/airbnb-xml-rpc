@@ -2,13 +2,8 @@ from models.database import Database
 
 
 def formatSimpleResult(result):
-    array = []
-    for row in result:
-        filename = row[0]
-        result = row[1][1:-1]
-        array.append((filename, result))
 
-    return array
+    return result
 
 
 def fetchAirbnbs():
@@ -16,10 +11,10 @@ def fetchAirbnbs():
     database = Database()
 
     results = database.selectAll(
-        "SELECT file_name,  (xpath('//airbnbs/airbnb/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        "SELECT file_name,  unnest(xpath('//airbnbs/airbnb/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
-    return formatSimpleResult(results)
+    return results
 
 
 def fetchAreas():
@@ -27,10 +22,10 @@ def fetchAreas():
     database = Database()
 
     results = database.selectAll(
-        "SELECT file_name, (xpath('//areas/area/@name', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        "SELECT file_name, unnest(xpath('//areas/area/@name', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
-    return formatSimpleResult(results)
+    return results
 
 
 def fetchTypes():
@@ -38,10 +33,10 @@ def fetchTypes():
     database = Database()
 
     results = database.selectAll(
-        "SELECT file_name, (xpath('//types/type/@name', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        "SELECT file_name, unnest(xpath('//types/type/@name', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
-    return formatSimpleResult(results)
+    return results
 
 
 def countAirbnbs():
@@ -49,10 +44,10 @@ def countAirbnbs():
     database = Database()
 
     results = database.selectAll(
-        "SELECT file_name, (xpath('count(//airbnbs/airbnb)', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        "SELECT file_name, unnest(xpath('count(//airbnbs/airbnb)', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
-    return formatSimpleResult(results)
+    return results
 
 
 def countByArea(area):
@@ -60,10 +55,10 @@ def countByArea(area):
     database = Database()
 
     results = database.selectAll(
-        f"SELECT file_name, (xpath('count(//airbnbs/airbnb/address/area[@ref=/root/areas/area[@name=\"{area}\"]/@id])', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        f"SELECT file_name, unnest(xpath('count(//airbnbs/airbnb/address/area[@ref=/root/areas/area[@name=\"{area}\"]/@id])', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
-    return formatSimpleResult(results)
+    return results
 
 
 def countByType(type):
@@ -71,10 +66,10 @@ def countByType(type):
     database = Database()
 
     results = database.selectAll(
-        f"SELECT file_name, (xpath('count(//airbnbs/airbnb/type[@ref=/root/types/type[@name=\"{type}\"]/@id])', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        f"SELECT file_name, unnest(xpath('count(//airbnbs/airbnb/type[@ref=/root/types/type[@name=\"{type}\"]/@id])', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
-    return formatSimpleResult(results)
+    return results
 
 
 def fetchByPriceLowerThen(price):
@@ -82,10 +77,10 @@ def fetchByPriceLowerThen(price):
     database = Database()
 
     results = database.selectAll(
-        f"SELECT file_name, (xpath('//airbnbs/airbnb[price < {price}]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        f"SELECT file_name, unnest(xpath('//airbnbs/airbnb[price < {price}]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
-    return formatSimpleResult(results)
+    return results
 
 
 def fetchByPriceHigherThen(price):
@@ -93,7 +88,7 @@ def fetchByPriceHigherThen(price):
     database = Database()
 
     results = database.selectAll(
-        f"SELECT file_name, (xpath('//airbnbs/airbnb[price > {price}]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
+        f"SELECT file_name, unnest(xpath('//airbnbs/airbnb[price > {price}]/name/text()', xml)) as output FROM imported_documents WHERE deleted_on IS NULL")
 
     database.disconnect()
-    return formatSimpleResult(results)
+    return results

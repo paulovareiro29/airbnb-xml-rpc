@@ -65,8 +65,8 @@ def insert(filename, data):
         raise Fault(2, "Failed to connect to database!")
 
     try:
-        ''' database.insert(
-            "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", (filename, xml)) '''
+        database.insert(
+            "INSERT INTO public.imported_documents (file_name, xml) VALUES (%s, %s)", (filename, xml))
         return True
     except psycopg2.IntegrityError as _:
         raise Fault(3, "Filename already exists on database!")

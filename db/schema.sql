@@ -8,13 +8,3 @@ CREATE TABLE public.imported_documents (
 );
 
 CREATE UNIQUE INDEX document_filename ON imported_documents (file_name) WHERE deleted_on IS NULL;
-
-CREATE TABLE public.teachers (
-	name    VARCHAR (100),
-	city    VARCHAR(100),
-	created_on      TIMESTAMP NOT NULL DEFAULT NOW(),
-	updated_on      TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-INSERT INTO teachers(name, city) VALUES('Luís Teófilo', 'Porto');
-INSERT INTO teachers(name, city) VALUES('Jorge Ribeiro', 'Braga');
