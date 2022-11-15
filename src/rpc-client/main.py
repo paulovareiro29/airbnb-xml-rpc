@@ -90,31 +90,34 @@ def fetchTypes():
 
 def countAirbnbs():
     result = server.countAirbnbs()
-    print(result)
+    for item in result:
+        print(item)
 
 
 def countByArea():
     availableAreas = server.fetchAreas()
     print("Available Areas:")
     for item in availableAreas:
-        print(item[1])
+        print(item)
 
     area = input("\nInput the area: ")
 
     result = server.countByArea(area)
-    print(result)
+    for item in result:
+        print(item)
 
 
 def countByType():
     availableTypes = server.fetchTypes()
     print("Available Types:")
     for item in availableTypes:
-        print(item[1])
+        print(item)
 
     type = input("\nInput the type: ")
 
     result = server.countByType(type)
-    print(result)
+    for item in result:
+        print(item)
 
 
 def fetchByPrice():
@@ -125,13 +128,14 @@ def fetchByPrice():
             print("Invalid option")
 
     if highOrLow == '1':
-        price = input("Higher then: ")
+        price = input("\nHigher then: ")
         result = server.fetchByPriceHigherThen(price)
     else:
-        price = input("Lower then:")
+        price = input("\nLower then:")
         result = server.fetchByPriceLowerThen(price)
 
-    print(result)
+    for item in result:
+        print(item)
 
 
 signal.signal(signal.SIGTERM, handleExit)
