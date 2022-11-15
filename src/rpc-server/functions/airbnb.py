@@ -143,8 +143,6 @@ class Parser:
                 "verified": row[3]
             },
             "address": {
-                "house_number": "",
-                "road": "",
                 "neighbourhood": row[6],
                 "area": area,
                 "coordinates": {
@@ -163,8 +161,6 @@ class Parser:
                                 <verified>{data['host']['verified']}</verified>
                             </host>
                             <address>
-                                <house_number>{data['address']['house_number']}</house_number>
-                                <road>{data['address']['road']}</road>
                                 <neighbourhood>{data['address']['neighbourhood']}</neighbourhood>
                                 <area ref="{data['address']['area']}" />
                                 <coordinates>

@@ -66,12 +66,6 @@
                             <xs:element name="address">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element name="house_number">
-                                            <xs:complexType/>
-                                        </xs:element>
-                                        <xs:element name="road">
-                                            <xs:complexType/>
-                                        </xs:element>
                                         <xs:element name="neighbourhood" type="xs:string"/>
                                         <xs:element name="area">
                                             <xs:complexType>
