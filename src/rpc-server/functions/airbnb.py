@@ -189,7 +189,7 @@ class Parser:
         array = []
         next(reader)
         for row in reader:
-            area = escape(row[5])
+            area = escape(row[5]).strip()
             if area not in array:
                 array.append(area)
 
@@ -202,7 +202,7 @@ class Parser:
         array = []
         next(reader)
         for row in reader:
-            type = escape(row[13])
+            type = escape(row[13]).strip()
             if type not in array:
                 array.append(type)
 
